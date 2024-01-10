@@ -19,14 +19,13 @@ func Build(m mosaic.Mosaic, cfg *config.Config) []string {
 		"[posv1][v2] overlay=shortest=0:x=1260:y=40 [posv2];" +
 		"[image][posv2] overlay=shortest=0 [mosaico]"
 
-	return []string{
+	args := []string{
 		"-loglevel", "error",
 		"-i", cfg.StaticsPath + "/background.jpg",
 		"-i", m.Medias[0].URL,
 		"-i", m.Medias[1].URL,
 		"-filter_complex", filterComplex,
 		"-map", "[mosaico]",
-		"-map", "1:a",
 		"-c:v", "libx264",
 		"-x264opts", "keyint=30:min-keyint=30:scenecut=-1",
 		"-preset", "ultrafast",
@@ -43,4 +42,10 @@ func Build(m mosaic.Mosaic, cfg *config.Config) []string {
 		"-sc_threshold", "0",
 		fmt.Sprintf("http://localhost:8080/%s", playlistPath),
 	}
+
+	if mosaic.WithAudio {
+		args = append(args, "-map", "1:a")
+	}
+
+	return args
 }
